@@ -6,73 +6,86 @@ import java.sql.SQLException;
 
 public class ConectarMySQL {
 	
-	private static Connection cnx = null;
-	private String ipUser;
-	private String nameDB;
-	private String user;
-	private String pass;
+	// Librería de MySQL
+    private String driver = "com.mysql.jdbc.Driver";
+
+    // Nombre de la base de datos
+    private String database;
+
+    // Host
+    private String hostname;
+
+    // Puerto
+    private String port;
+
+    // Ruta de nuestra base de datos (desactivamos el uso de SSL con "?useSSL=false")
+    private String url = "jdbc:mysql://" + hostname + ":" + port + "/" + database + "?useSSL=false";
+
+    // Nombre de usuario
+    private String username;
+
+    // Clave de usuario
+    private String password;
+    
+    // Conexion
+    private static Connection conn = null;
+
+    // Getters
+    public String getDriver() {
+		return driver;
+	}
+	public String getDatabase() {
+		return database;
+	}
+	public String getHostname() {
+		return hostname;
+	}
+	public String getPort() {
+		return port;
+	}
+	public String getUrl() {
+		return url;
+	}
+
+	// Setters
+	public String getUsername() {
+		return username;
+	}
+	public String getPassword() {
+		return password;
+	}
+	public void setDatabase(String database) {
+		this.database = database;
+	}
+	public void setHostname(String hostname) {
+		this.hostname = hostname;
+	}
+	public void setPort(String port) {
+		this.port = port;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}
 	
-	public ConectarMySQL() {
-		
+	public Connection conectarMySQL() {
+        //Connection conn = null;
+        try {
+            Class.forName(driver);
+            conn = DriverManager.getConnection(url, username, password);
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+
+        return conn;
+    }
+
+	public static void desconectarMySQL() throws SQLException {
+		if (conn != null) {
+			conn.close();
+		}
 	}
 	
-	public ConectarMySQL(String ipUser, String nameDB, String user, String pass) {
-		this.ipUser = ipUser;
-		this.nameDB = nameDB;
-		this.user = user;
-		this.pass = pass;
-	}
-
-	public String getIpUser() {
-		return ipUser;
-	}
-
-	public String getNameDB() {
-		return nameDB;
-	}
-
-	public String getUser() {
-		return user;
-	}
-
-	public String getPass() {
-		return pass;
-	}
-
-	public void setIpUser(String ipUser) {
-		this.ipUser = ipUser;
-	}
-
-	public void setNameDB(String nameDB) {
-		this.nameDB = nameDB;
-	}
-
-	public void setUser(String user) {
-		this.user = user;
-	}
-
-	public void setPass(String pass) {
-		this.pass = pass;
-	}
-
-	public static Connection obtener(String ipUser, String nameDB, String user, String pass) throws SQLException,  ClassNotFoundException {
-		 
-		if (cnx == null) {
-			try {
-				Class.forName("com.mysql.jdbc.Driver");
-				cnx = DriverManager.getConnection("jdbc:mysql://"+ ipUser +"/"+ nameDB , user, pass);
-			} catch (SQLException ex) {
-				throw new SQLException(ex);
-			} catch (ClassNotFoundException ex) {
-				throw new ClassCastException(ex.getMessage());
-			}
-		}
-		return cnx;
-	}
-
-	public static void cerrar() throws SQLException {
-		if (cnx != null) {
-			cnx.close();
-		}
-	}
 }
