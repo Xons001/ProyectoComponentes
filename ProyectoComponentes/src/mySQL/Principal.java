@@ -1,0 +1,10 @@
+package mySQL;
+
+public class Principal {
+
+	public static void main(String[] args) {
+		ConectarMySQL con = new ConectarMySQL("forhonor", "localhost", "8888", "root", "");
+		con.conectarMySQL();
+	}
+
+}
