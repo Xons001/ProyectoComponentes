@@ -9,14 +9,14 @@ public class DatosDataBase {
 	private String nameUser;
 	private String query;
 	private String typeQuery;
-	private Date fecha;
+	private String fecha;
 	private int numRegisters;
 	
 	public DatosDataBase() {
 		
 	}
 	
-	public DatosDataBase(String nameDataBase, String nameUser, String query, String typeQuery, Date fecha,
+	public DatosDataBase(String nameDataBase, String nameUser, String query, String typeQuery, String fecha,
 			int numRegisters) {
 		this.nameDataBase = nameDataBase;
 		this.nameUser = nameUser;
@@ -39,7 +39,7 @@ public class DatosDataBase {
 	public String getTypeQuery() {
 		return typeQuery;
 	}
-	public Date getFecha() {
+	public String getFecha() {
 		return fecha;
 	}
 	public int getNumRegisters() {
@@ -59,7 +59,7 @@ public class DatosDataBase {
 	public void setTypeQuery(String typeQuery) {
 		this.typeQuery = typeQuery;
 	}
-	public void setFecha(Date fecha) {
+	public void setFecha(String fecha) {
 		this.fecha = fecha;
 	}
 	public void setNumRegisters(int numRegisters) {

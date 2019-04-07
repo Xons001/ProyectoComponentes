@@ -1,5 +1,6 @@
 package mySQL;
 
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 import java.sql.Connection;
@@ -7,6 +8,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Date;
 
 import modelos.DatosDataBase;
 
@@ -43,19 +45,13 @@ public class ConectarMySQL implements Serializable{
 
 	// Para crear query
 	private Statement statement;
-	
+
 	// Resultado de la query
 	private ResultSet resultset;
-	
+
 	// Llamando el objeto de los eventos
 	private static QueryConsultas event;
-	
 	private PropertyChangeSupport evento;
-	
-	// Constructor vacio
-	public ConectarMySQL() {
-
-	}
 
 	//Constructor lleno
 	public ConectarMySQL(String database, String hostname, String port, String username,
@@ -138,7 +134,7 @@ public class ConectarMySQL implements Serializable{
 	public void setEvento(PropertyChangeSupport evento) {
 		this.evento = evento;
 	}
-	
+
 	public Connection conectarMySQL() {
 		//Connection conn = null;
 		try {
@@ -160,24 +156,134 @@ public class ConectarMySQL implements Serializable{
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+
 	public void select(String query) {
 		try {
 			DatosDataBase infoDB = new DatosDataBase();
-			
+
 			statement = conn.createStatement();
 			resultset = statement.executeQuery(query);
+
 			int cont = 0;
 			while (resultset.next()) {
 				cont++;
 			}
-			
+
 			infoDB.setNameDataBase(this.database);
-			//infoDB.set
+			infoDB.setTypeQuery("Select");
+			infoDB.setQuery(query);
+			infoDB.setFecha(infoDB.getDate());
+			infoDB.setNameUser(this.username);
+			infoDB.setNumRegisters(cont);
+
+			evento.firePropertyChange("Select", null, infoDB);
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 
+	public void insert(String query) {
+		try {
+			DatosDataBase infoDB = new DatosDataBase();
+
+			statement = conn.createStatement();
+			//Este es executeUpdate
+			statement.executeUpdate(query);
+
+			infoDB.setNameDataBase(this.database);
+			infoDB.setTypeQuery("Insert");
+			infoDB.setQuery(query);
+			infoDB.setFecha(infoDB.getDate());
+			infoDB.setNameUser(this.username);
+			infoDB.setNumRegisters(1);
+
+			evento.firePropertyChange("Insert", null, infoDB);
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void update(String query) {
+		try {
+			DatosDataBase infoDB = new DatosDataBase();
+
+			statement = conn.createStatement();
+
+			infoDB.setNameDataBase(this.database);
+			infoDB.setTypeQuery("Update");
+			infoDB.setQuery(query);
+			infoDB.setFecha(infoDB.getDate());
+			infoDB.setNameUser(this.username);
+			infoDB.setNumRegisters(statement.executeUpdate(query));
+
+			evento.firePropertyChange("Update", null, infoDB);
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void delete(String query) {
+		try {
+			DatosDataBase infoDB = new DatosDataBase();
+
+			statement = conn.createStatement();
+
+			infoDB.setNameDataBase(this.database);
+			infoDB.setTypeQuery("Delete");
+			infoDB.setQuery(query);
+			infoDB.setFecha(infoDB.getDate());
+			infoDB.setNameUser(this.username);
+			infoDB.setNumRegisters(statement.executeUpdate(query));
+
+			evento.firePropertyChange("Delete", null, infoDB);
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	public void queryConsulta(String nameDataBase, String data) {
+		if (data.equalsIgnoreCase("Select") || data.equalsIgnoreCase("Insert") || data.equalsIgnoreCase("Update") || data.equalsIgnoreCase("Delete")) {
+			for (DatosDataBase ddb : event.getEnter()) {
+				if(ddb.getTypeQuery().equals(data) && ddb.getNameDataBase().equals(nameDataBase)) {
+					System.out.println(ddb.getNameUser() + " || " + ddb.getQuery() + " || " + ddb.getDate());
+				}
+			}
+		} else {
+			for (DatosDataBase ddb : event.getEnter()) {
+				if(ddb.getNameUser().equals(data) && ddb.getNameDataBase().equals(nameDataBase)) {
+					System.out.println(ddb.getTypeQuery() + " || " + ddb.getQuery() + " || " + ddb.getDate());
+				}
+			}
+		}
+	}
+
+
+	public void queryConsulta(String nameDataBase, String nameUser, String typeQuery) {
+		for (DatosDataBase ddb : event.getEnter()) {
+			if(ddb.getNameUser().equals(nameUser) && ddb.getTypeQuery().equals(typeQuery) && ddb.getNameDataBase().equals(nameDataBase)) {
+				System.out.println(ddb.getQuery() + " || " + ddb.getDate());
+			}
+		}
+	}
+
+	// Constructor de evento
+	public ConectarMySQL() {
+		evento = new PropertyChangeSupport(this);
+		event = new QueryConsultas();
+		addPropertyChangeListener(event);
+	}
+	
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		evento.addPropertyChangeListener(listener);
+	}
+
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		evento.removePropertyChangeListener(listener);
+	}
 }
